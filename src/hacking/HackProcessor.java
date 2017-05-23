@@ -1,13 +1,10 @@
 package hacking;
 
-import java.util.Scanner;
 
-public class HackProcessor extends MainControlGUI{
+public class HackProcessor {
 	
-	Scanner input;
-	
-	public HackProcessor(Scanner in){
-		input = in;
+	public HackProcessor(){
+
 	}
 	
 	public void process(String command, Server serv){
@@ -32,17 +29,18 @@ public class HackProcessor extends MainControlGUI{
 				}
 			}
 			else if(command.substring(0,10).equals("telnet -l ")&&command.split(" ").length>3&&command.split(" ")[3].equals(serv.getIp())){
-				
 				serv.login(command.split(" ")[2]);
 			}
 			else if(command.length()>37&&command.substring(0,37).equals("nmap --script ftp-vsftpd-backdoor -p ")&&Integer.parseInt(command.substring(37))==serv.getPort()){
 				serv.backdoor();
 			}
-			else if(command.length()>16&&command.substring(0,17).equals("sudo nmap -sV -p ")){
-				if(command.equals("sudo nmap -sV -p "+serv.getPort()+" --script ftp-vsftpd-backdoor --script-args exploit.cmd=\"<username> / <filename>\" "+serv.getIp())){
-					serv.getFile();
-				}
+			if(command.equals("sudo nmap -sV -p "+serv.getPort()+" --script ftp-vsftpd-backdoor --script-args exploit.cmd=\"admin / MagpieFile\" "+serv.getIp())){
+				serv.getFile();
 			}
+		}
+		
+		if(command.equals(serv.getPass())&&serv.getFound()){
+			serv.pass(command);
 		}
 		
 	}

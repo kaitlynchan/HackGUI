@@ -1,14 +1,16 @@
 package hacking;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-
 import java.awt.event.*;
 import java.io.*;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.awt.*;
 
-public class MainControlGUI  { //instance of hwgui is an action listener
+public class MainControlGUI  { //main class runner of GUI
 
 	JTextArea textArea = new JTextArea (18,90);
 	String input1 = "";
@@ -19,7 +21,7 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 
 	public static void main(String[] args) {
 		
-		MainControlGUI gui = new MainControlGUI();
+		MainControlGUI gui = new MainControlGUI(); //create GUI
 		gui.go();
 		
 	}
@@ -31,14 +33,14 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //quits program once window closes
 		
-		
-		textArea.setLineWrap(true);
+		//textArea styling
 		textArea.setBackground(Color.darkGray);
 		Font font = new Font("Courier New", Font.PLAIN, 18);
         textArea.setFont(font);
         textArea.setForeground(Color.white);
+        textArea.setCaretColor(Color.white);
         
-		
+		//creating the scroll pane
 	    JScrollPane jScrollPane = new JScrollPane(textArea);
 
 	    jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -47,32 +49,46 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 	    jScrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    jScrollPane.setBackground(Color.black);
 
-		JLabel background = new JLabel(new ImageIcon("/Users/gwc/Downloads/hack.gif"));
-				
-		panel.add(jScrollPane);
+		//adding the pusheen image
+	    Image image = null;
+	    URL url = null;
+	    try {
+	        url = new URL("https://kaitlynchan.github.io/HackGUIweb/hack%20copy.gif");
+	        image = ImageIO.read(url);
+	    } catch (MalformedURLException ex) {
+	        System.out.println("Malformed URL");
+	    } catch (IOException iox) {
+	        System.out.println("Can not load file");
+	    }
+	    JLabel background = new JLabel(new ImageIcon(image));
+	   		
+		//add components to the panel
+	    panel.add(jScrollPane);
 		panel.setBackground(Color.black);
 	    frame.getContentPane().add(BorderLayout.CENTER,panel);
 	    frame.getContentPane().add(BorderLayout.SOUTH, background);
 	    frame.getContentPane().setBackground(Color.BLACK);
-	    textArea.setCaretColor(Color.white);
-
+	    
+	    //found methods to replace system.out to redirect to GUI
 		redirectSystemStreams();
-
+		
+		//frame set up
 		frame.setSize(1100, 700); //pixels
 		frame.setTitle("HackSim");
 		frame.setVisible(true); //show the stuff!
 		
-		Scanner input = new Scanner(System.in);
+		//begin building the hacksim
+
+		HackProcessor proc = new HackProcessor();
+		String currIp = newIP();
+		String nextIp = newIP();
+		Server serv = new Server("admin", "password", "The next IP is "+nextIp+"\nUser is admin\nPassword is the minimum moves to complete the Towers of Hanoi with three rings", currIp, proc);
 		
+		//output information to GUI
 		for (int i = 0; i < 3; i++){
 			write(".");
 			pause(200);
 		}
-		
-		HackProcessor proc = new HackProcessor(input);
-		String currIp = newIP();
-		String nextIp = newIP();
-		Server serv = new Server("admin", "password", "The next IP is "+nextIp+"\nUser is admin\nPassword is the minimum moves to complete the Towers of Hanoi with three rings", currIp, input, proc);
 		
 		write("Hello agent\n");
 		pause(800);
@@ -82,10 +98,10 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 		pause(800);
 		write("Do you accept this mission? Please answer yes or no");
 
-		
+		//record the current text in the area
 		input1 = (textArea.getText()).trim();
 		
-		
+		//process the user input
 		try {
 			userIn = getInput();
 		} catch (InterruptedException e) {
@@ -113,6 +129,8 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 				pause(750);
 			}		
 			write("For a list of useful commands, enter the word 'commands' without quotes");
+			
+			//process next input
 			input1 = (textArea.getText()).trim();
 			while(serv.hacked == false){
 				input1 = (textArea.getText()).trim();
@@ -127,8 +145,10 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 				
 			}
 			currIp = nextIp;
-			serv = new Server("admin", "7", "That's the last server in the demo!", currIp, input, proc);
+			serv = new Server("admin", "7", "That's the last server in the demo!", currIp, proc);
 			write("Congratulations!\nYou've hacked the first server and gotten a clue to the next one\nRepeat the process on the next server");
+			
+			//process more input 
 			input1 = (textArea.getText()).trim();
 			while(serv.hacked == false){
 				input1 = (textArea.getText()).trim();
@@ -145,7 +165,8 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 			write("We'll see you next time, agent");
 		}
 	}
-
+	
+	//method to set user input to a string once enter key event occurs
 	public String getInput() throws InterruptedException
 	{
 	    final CountDownLatch latch = new CountDownLatch(1);
@@ -195,7 +216,7 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 		System.out.println();
 	}
 	
-	
+	//part of method to redirect system streams to GUI from console
 	private void updateTextArea(final String text) {
 		  SwingUtilities.invokeLater(new Runnable() {
 		    public void run() {
@@ -225,6 +246,5 @@ public class MainControlGUI  { //instance of hwgui is an action listener
 		  System.setOut(new PrintStream(out, true));
 		  System.setErr(new PrintStream(out, true));
 	}
-
 
 }

@@ -3,10 +3,9 @@ package hacking;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
-import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 
-public class Server extends MainControlGUI{
+public class Server {
 	
 	private String username;
 	private String password;
@@ -18,20 +17,18 @@ public class Server extends MainControlGUI{
 	private boolean access;
 	private boolean found;
 	
-	private Scanner input;
 	private HackProcessor proc;
 	
 	boolean hacked;
 	boolean bypass;
 	
-	public Server(String user, String pass, String fileText, String ip, Scanner in, HackProcessor process){
+	public Server(String user, String pass, String fileText, String ip, HackProcessor process){
 		username = user;
 		password = pass;
 		file = fileText;
 		access = false;
 		found = false;
 		ipAddress = ip;
-		input = in;
 		proc = process;
 		port = (int) (Math.random() * 30);
 		hacked = false;
@@ -42,25 +39,20 @@ public class Server extends MainControlGUI{
 		if(found){
 			if(user.equals(username)){
 				MainControlGUI.write("Password:");
-				input1 =  (textArea.getText()).trim();
-				MainControlGUI.write(input1 + " input1");
-				try {
-					String temp = getInput();
-					MainControlGUI.write(input1 + " " + input2 + " "+ temp + "hi");
-					if(temp.equals(password)){
-						access = true;
-						MainControlGUI.write("Access granted");
-						return;
-					}
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				MainControlGUI.write("Incorrect password");
 				return;
 			}
 			MainControlGUI.write("Incorrect username");
 		}
+	}
+	
+	public void pass(String pass){
+		if(pass.equals(password)){
+			access = true;
+			MainControlGUI.write("Access granted");
+			return;
+		}
+		MainControlGUI.write("Incorrect password");
+		return;
 	}
 	public void backdoor(){
 		MainControlGUI.write("Backdoor found");
@@ -76,8 +68,6 @@ public class Server extends MainControlGUI{
 		}
 		else{
 			MainControlGUI.write("Server not found, reenter command and IP");
-			String command = input.nextLine();
-			proc.process(command, this);
 		}
 	}
 	public void bypass(String pass){
@@ -93,6 +83,7 @@ public class Server extends MainControlGUI{
 	}
 	public void getFile(){
 		MainControlGUI.write(file);
+		MainControlGUI.pause(1000);
 		hacked = true;
 	}
 	public int getPort(){
@@ -105,6 +96,8 @@ public class Server extends MainControlGUI{
 		return found;
 	}
 	
-	
+	public String getPass(){
+		return password;
+	}
 	
 }
